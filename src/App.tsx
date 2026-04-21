@@ -36,7 +36,7 @@ import { STUDY_MATERIALS as STATIC_MATERIALS, StudyMaterial } from './data/mater
 import { ADMIN_MESSAGES } from './data/messages';
 
 function AppContent() {
-  const { user, signIn, logout, isAdmin, loading: authLoading } = useAuth();
+  const { user, signIn, logout, isAdmin, isPasscodeAuth, passcodeLogin, loading: authLoading } = useAuth();
   const [dbMaterials, setDbMaterials] = useState<StudyMaterial[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('全部');
@@ -122,15 +122,16 @@ function AppContent() {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-             {user ? (
+             {isAdmin ? (
                <div className="flex items-center gap-2">
-                 {user.photoURL ? (
+                 {user?.photoURL ? (
                     <img src={user.photoURL} alt="Avatar" className="w-6 h-6 rounded-full border border-black/5" referrerPolicy="no-referrer" />
                  ) : (
                     <div className="w-6 h-6 rounded-full bg-apple-blue/10 flex items-center justify-center">
                       <User className="w-3.5 h-3.5 text-apple-blue" />
                     </div>
                  )}
+                 <span className="text-[11px] font-bold text-black/40">ADMIN</span>
                  <button 
                   onClick={logout} 
                   className="text-[11px] font-medium text-apple-gray hover:text-black transition-colors flex items-center gap-1"
@@ -141,11 +142,22 @@ function AppContent() {
                </div>
              ) : (
                <button 
-                onClick={signIn}
+                onClick={() => {
+                  const passcode = window.prompt("请输入管理员访问代码（或尝试谷歌登录）：");
+                  if (passcode) {
+                    if (passcodeLogin(passcode)) {
+                      alert("代码正确，已管理员方式登录。");
+                    } else {
+                      signIn();
+                    }
+                  } else {
+                    signIn();
+                  }
+                }}
                 className="text-[11px] font-medium text-apple-blue hover:opacity-80 transition-opacity flex items-center gap-1"
                >
                  <LogIn className="w-3 h-3" />
-                 登录
+                 管理登录
                </button>
              )}
              {currentView === 'home' && (
