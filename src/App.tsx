@@ -26,11 +26,11 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { AuthProvider, useAuth } from './components/AuthProvider';
 import { AdminPanel } from './components/AdminPanel';
-import { LogIn, LogOut, User } from 'lucide-react';
+import { LogIn, LogOut, User, Trash2 } from 'lucide-react';
 
 import { STUDY_MATERIALS as STATIC_MATERIALS, StudyMaterial } from './data/materials';
 import { ADMIN_MESSAGES } from './data/messages';
@@ -79,6 +79,18 @@ function AppContent() {
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, activeCategory, allMaterials]);
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!isAdmin) return;
+    if (window.confirm(`确定要删除“${title}”吗？如果是默认初始资料将无法删除。`)) {
+      try {
+        await deleteDoc(doc(db, 'materials', id));
+      } catch (error) {
+        console.error("Delete error", error);
+        alert('删除失败，可能该资源是受保护的初始资料。');
+      }
+    }
+  };
 
   const categories = ['全部', '数学', '编程', '英语', '工程学', '考研', '历史', '其他'];
 
@@ -294,7 +306,18 @@ function AppContent() {
                            <div className="w-full h-px bg-black/5 mt-4" />
                         </div>
                         <CardFooter className="p-8 pt-0 flex justify-between items-center">
-                          <span className="text-[11px] text-apple-gray font-medium uppercase tracking-wider">{material.date}</span>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[11px] text-apple-gray font-medium uppercase tracking-wider">{material.date}</span>
+                            {isAdmin && !STATIC_MATERIALS.some(s => s.id === material.id) && (
+                              <button 
+                                onClick={() => handleDelete(material.id, material.title)}
+                                className="text-apple-gray hover:text-red-500 transition-colors"
+                                title="删除此资料"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                           <a 
                             href={material.downloadUrl} 
                             target="_blank" 
