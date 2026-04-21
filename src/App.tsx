@@ -94,10 +94,8 @@ export default function App() {
                </div>
              )}
              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full w-8 h-8 hover:bg-black/5">
-                    <ShieldCheck className="w-4 h-4" />
-                  </Button>
+                <DialogTrigger render={<Button variant="ghost" size="icon" className="rounded-full w-8 h-8 hover:bg-black/5" />}>
+                   <ShieldCheck className="w-4 h-4" />
                 </DialogTrigger>
                 <DialogContent className="rounded-3xl max-w-2xl bg-white/95 backdrop-blur-3xl border-none shadow-2xl">
                   <DialogHeader>
