@@ -14,11 +14,5 @@ export const ADMIN_MESSAGES: AdminMessage[] = [
     date: "2024-04-21",
     important: true,
   },
-  {
-    id: "m2",
-    author: "管理员",
-    content: "下周将更新计算机考研专业课资料包，敬请期待。",
-    date: "2024-04-20",
-    important: false,
-  },
+
 ];
