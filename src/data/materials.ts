@@ -10,12 +10,21 @@ export interface StudyMaterial {
 
 export const STUDY_MATERIALS: StudyMaterial[] = [
   {
+    id: "pdf-example",
+    title: "如何发布您的 PDF (指南)",
+    category: "其他",
+    description: "点击查看如何将您的 PDF 文件转化为网页内容进行展示。",
+    downloadUrl: "/materials/guide.pdf",
+    date: "2026-04-21",
+    fileSize: "0.5 MB",
+  },
+  {
     id: "1",
     title: "高斯积分公式详解 (PDF)",
     category: "数学",
     description: "针对基米大学数学分析课程的重点难点解析，建议直接在线阅读或下载。",
     downloadUrl: "/materials/math_analysis_guide.pdf",
-    date: "2024-04-20",
+    date: "2026-04-21",
     fileSize: "1.2 MB",
   },
   {
@@ -24,7 +33,7 @@ export const STUDY_MATERIALS: StudyMaterial[] = [
     category: "工程学",
     description: "涵盖投影理论与零件图绘制的核心规范，适合大一新生学习。",
     downloadUrl: "#",
-    date: "2024-04-19",
+    date: "2026-04-20",
     fileSize: "4.8 MB",
   },
   {
@@ -33,7 +42,7 @@ export const STUDY_MATERIALS: StudyMaterial[] = [
     category: "历史",
     description: "从文明起源到近代工业革命，梳理历史发展的核心逻辑。",
     downloadUrl: "#",
-    date: "2024-04-18",
+    date: "2026-04-19",
     fileSize: "2.1 MB",
   },
   {
@@ -42,7 +51,7 @@ export const STUDY_MATERIALS: StudyMaterial[] = [
     category: "编程",
     description: "从基础到架构，全面掌握现代前端开发核心技术。",
     downloadUrl: "#",
-    date: "2024-04-17",
+    date: "2026-04-18",
     fileSize: "5.5 MB",
   },
 ];

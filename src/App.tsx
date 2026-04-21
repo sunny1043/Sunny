@@ -243,10 +243,15 @@ export default function App() {
                         </div>
                         <CardFooter className="p-8 pt-0 flex justify-between items-center">
                           <span className="text-[11px] text-apple-gray font-medium uppercase tracking-wider">{material.date}</span>
-                          <Button variant="ghost" size="sm" className="rounded-full text-apple-blue hover:text-apple-blue hover:bg-apple-blue/5 group/btn font-semibold text-[13px]">
+                          <a 
+                            href={material.downloadUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center rounded-full text-apple-blue hover:bg-apple-blue/5 px-4 py-2 transition-colors group/btn font-semibold text-[13px]"
+                          >
                             查看
                             <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover/btn:translate-x-1" />
-                          </Button>
+                          </a>
                         </CardFooter>
                       </Card>
                     </motion.div>
