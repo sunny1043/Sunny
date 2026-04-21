@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "material": {
+      "title": "Study Material",
+      "description": "A study material item including title, category, and download link.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "date": { "type": "string" },
+        "fileSize": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["title", "category", "downloadUrl", "date", "ownerId"]
+    },
+    "message": {
+      "title": "Admin Message",
+      "description": "A message displayed in the community news section.",
+      "type": "object",
+      "properties": {
+        "author": { "type": "string" },
+        "content": { "type": "string" },
+        "date": { "type": "string" },
+        "important": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "ownerId": { "type": "string" }
+      },
+      "required": ["author", "content", "date", "ownerId"]
+    },
+    "admin": {
+      "title": "Administrator",
+      "description": "Internal record of users with management privileges.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "materials": {
+      "schema": "material",
+      "description": "Collection of all shared study materials."
+    },
+    "messages": {
+      "schema": "message",
+      "description": "Collection of news and board messages."
+    },
+    "admins": {
+      "schema": "admin",
+      "description": "List of user UIDs authorized to manage content."
+    }
+  }
+}

@@ -26,10 +26,18 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 
-import { STUDY_MATERIALS } from './data/materials';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { db } from './lib/firebase';
+import { AuthProvider, useAuth } from './components/AuthProvider';
+import { AdminPanel } from './components/AdminPanel';
+import { LogIn, LogOut, User } from 'lucide-react';
+
+import { STUDY_MATERIALS as STATIC_MATERIALS, StudyMaterial } from './data/materials';
 import { ADMIN_MESSAGES } from './data/messages';
 
-export default function App() {
+function AppContent() {
+  const { user, signIn, logout, isAdmin, loading: authLoading } = useAuth();
+  const [dbMaterials, setDbMaterials] = useState<StudyMaterial[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('全部');
   const [activeAnnouncement, setActiveAnnouncement] = useState(0);
@@ -43,14 +51,34 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
+  // Fetch dynamic materials from Firestore
+  useEffect(() => {
+    const q = query(collection(db, 'materials'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const materials = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as StudyMaterial[];
+      setDbMaterials(materials);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const allMaterials = useMemo(() => {
+    // Combine static default data with dynamically added database data
+    return [...dbMaterials, ...STATIC_MATERIALS].filter((item, index, self) => 
+      index === self.findIndex((t) => t.id === item.id)
+    );
+  }, [dbMaterials]);
+
   const filteredMaterials = useMemo(() => {
-    return STUDY_MATERIALS.filter((m) => {
+    return allMaterials.filter((m) => {
       const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           m.description.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = activeCategory === '全部' || m.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, activeCategory]);
+  }, [searchQuery, activeCategory, allMaterials]);
 
   const categories = ['全部', '数学', '编程', '英语', '工程学', '考研', '历史', '其他'];
 
@@ -82,6 +110,32 @@ export default function App() {
             </nav>
           </div>
           <div className="flex items-center gap-4">
+             {user ? (
+               <div className="flex items-center gap-2">
+                 {user.photoURL ? (
+                    <img src={user.photoURL} alt="Avatar" className="w-6 h-6 rounded-full border border-black/5" referrerPolicy="no-referrer" />
+                 ) : (
+                    <div className="w-6 h-6 rounded-full bg-apple-blue/10 flex items-center justify-center">
+                      <User className="w-3.5 h-3.5 text-apple-blue" />
+                    </div>
+                 )}
+                 <button 
+                  onClick={logout} 
+                  className="text-[11px] font-medium text-apple-gray hover:text-black transition-colors flex items-center gap-1"
+                 >
+                   <LogOut className="w-3 h-3" />
+                   退出
+                 </button>
+               </div>
+             ) : (
+               <button 
+                onClick={signIn}
+                className="text-[11px] font-medium text-apple-blue hover:opacity-80 transition-opacity flex items-center gap-1"
+               >
+                 <LogIn className="w-3 h-3" />
+                 登录
+               </button>
+             )}
              {currentView === 'home' && (
                <div className="hidden md:flex items-center bg-black/5 rounded-full px-3 py-1 border border-black/5">
                   <Search className="w-3.5 h-3.5 text-apple-gray" />
@@ -359,6 +413,15 @@ export default function App() {
           </div>
         </div>
       </footer>
+      <AdminPanel />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

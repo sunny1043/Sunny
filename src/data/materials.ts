@@ -6,6 +6,7 @@ export interface StudyMaterial {
   downloadUrl: string;
   date: string;
   fileSize?: string;
+  createdAt?: any;
 }
 
 export const STUDY_MATERIALS: StudyMaterial[] = [

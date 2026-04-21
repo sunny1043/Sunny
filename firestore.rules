@@ -1,0 +1,76 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      // For this app, we will bootstrap the user's email as the primary admin
+      // and check a dedicated admins collection.
+      return isSignedIn() && (
+        request.auth.token.email == '491056297@qq.com' || 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Material Validation Helper
+    function isValidMaterial(data) {
+      return data.keys().hasAll(['title', 'category', 'description', 'downloadUrl', 'date', 'ownerId', 'createdAt']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category is string &&
+             data.description is string && data.description.size() <= 1000 &&
+             data.downloadUrl is string && data.downloadUrl.size() <= 2048 &&
+             data.date is string &&
+             data.ownerId == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    // Message Validation Helper
+    function isValidMessage(data) {
+      return data.keys().hasAll(['author', 'content', 'date', 'important', 'ownerId', 'createdAt']) &&
+             data.author is string && data.author.size() <= 50 &&
+             data.content is string && data.content.size() <= 2000 &&
+             data.important is bool &&
+             data.ownerId == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    match /materials/{materialId} {
+      allow read: if true;
+      allow create: if isAdmin() && isEmailVerified() && isValidId(materialId) && isValidMaterial(request.resource.data);
+      allow update: if isAdmin() && isEmailVerified() && isValidMaterial(request.resource.data) && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'category', 'description', 'downloadUrl', 'date'])
+      );
+      allow delete: if isAdmin() && isEmailVerified();
+    }
+
+    match /messages/{messageId} {
+      allow read: if true;
+      allow create: if isAdmin() && isEmailVerified() && isValidId(messageId) && isValidMessage(request.resource.data);
+      allow update: if isAdmin() && isEmailVerified() && isValidMessage(request.resource.data) && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['author', 'content', 'date', 'important'])
+      );
+      allow delete: if isAdmin() && isEmailVerified();
+    }
+
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Admins are manually managed or bootstrapped
+    }
+  }
+}
